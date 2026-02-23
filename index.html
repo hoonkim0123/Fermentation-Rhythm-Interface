@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Fermentation Rhythm — Care Structure</title>
+
+<style>
+:root{
+  --bg:#ffffff;
+  --soft:#f5f5f5;
+  --text:#111111;
+  --muted:#666666;
+  --line:#dddddd;
+
+  /* traffic-light state */
+  --active:#3a7d44;
+  --slow:#c99700;
+  --stress:#c0392b;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+
+.wrap{
+  max-width:720px;
+  margin:60px auto;
+  padding:0 20px;
+}
+
+.hero{
+  border-bottom:1px solid var(--line);
+  padding-bottom:20px;
+  margin-bottom:36px;
+}
+
+h1{
+  margin:0;
+  font-size:18px;
+  font-weight:600;
+}
+
+.subtitle{
+  margin-top:10px;
+  font-size:14px;
+  color:var(--muted);
+  max-width:64ch;
+}
+
+.section{ margin-bottom:34px; }
+
+.label{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+
+.helper{
+  font-size:12px;
+  color:var(--muted);
+  margin:2px 0 12px;
+  max-width:70ch;
+}
+
+.row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+button{
+  background:#fff;
+  border:1px solid var(--line);
+  padding:7px 14px;
+  font-size:12px;
+  border-radius:999px;
+  cursor:pointer;
+}
+
+button.active{ border-color:#111; }
+
+label{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin:18px 0 8px;
+}
+
+input[type=range]{
+  appearance:none;
+  width:100%;
+  margin:6px 0 4px;
+  background:transparent;
+}
+
+input[type=range]::-webkit-slider-runnable-track{
+  height:4px;
+  background:#ddd;
+  border-radius:999px;
+}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#111;
+  margin-top:-5px;
+}
+
+input[type=range]::-moz-range-track{
+  height:4px;
+  background:#ddd;
+  border-radius:999px;
+}
+input[type=range]::-moz-range-thumb{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#111;
+  border:none;
+}
+
+.ends{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--muted);
+}
+
+.status{
+  margin-top:20px;
+  padding:16px;
+  background:var(--soft);
+  border:1px solid var(--line);
+  font-size:13px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+
+.dot{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  margin-top:4px;
+}
+
+.status-title{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+/* optional: print friendliness */
+@media print{
+  .wrap{ margin:0; max-width:none; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Fermentation Rhythm</h1>
+    <div class="subtitle">
+      I designed a rhythm structure that sustains yeast metabolism rather than controlling its output.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="label">Phase</div>
+    <div class="helper">
+      Phase marks the current position in the fermentation cycle, not a user-controlled mode.
+    </div>
+
+    <div class="row" role="group" aria-label="phase buttons">
+      <button id="feed" class="active" onclick="setPhase('feed')">Feed</button>
+      <button id="expand" onclick="setPhase('expand')">Expand</button>
+      <button id="slow" onclick="setPhase('slow')">Slow</button>
+      <button id="stress" onclick="setPhase('stress')">Stress</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <label for="time">Time since last feeding</label>
+    <input id="time" type="range" min="0" max="100" value="50" oninput="update()" />
+    <div class="ends">
+      <span>Just fed</span>
+      <span>Long</span>
+    </div>
+
+    <label for="boundary">Boundary stability</label>
+    <input id="boundary" type="range" min="0" max="100" value="50" oninput="update()" />
+    <div class="ends">
+      <span>Exposed</span>
+      <span>Protected</span>
+    </div>
+
+    <div class="status" aria-label="system state panel">
+      <div class="dot" id="dot"></div>
+      <div>
+        <div class="status-title">System state</div>
+        <div id="statusText">Active — Wait and observe.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let phase = "feed";
+
+function setPhase(p){
+  phase = p;
+  ["feed","expand","slow","stress"].forEach(id=>{
+    document.getElementById(id).classList.toggle("active", id === p);
+  });
+  update();
+}
+
+function update(){
+  const time = +document.getElementById("time").value;
+  const boundary = +document.getElementById("boundary").value;
+
+  let stateText = "Active — Wait and observe.";
+  let color = "var(--active)";
+
+  if(phase === "stress"){
+    stateText = "Stressed — Isolate sample. Document. Do not mix.";
+    color = "var(--stress)";
+  } else if(time > 80 || boundary < 30){
+    stateText = "Slowing — Restore rhythm gently. Avoid abrupt changes.";
+    color = "var(--slow)";
+  } else {
+    // phase-sensitive gentle phrasing (still minimal)
+    if(phase === "feed")   stateText = "Slowing — Feed lightly, then wait and observe.";
+    if(phase === "expand") stateText = "Active — Do not intervene. Protect boundary and keep conditions stable.";
+    if(phase === "slow")   stateText = "Slowing — Prepare the next feeding. Keep conditions steady.";
+  }
+
+  document.getElementById("statusText").textContent = stateText;
+  document.getElementById("dot").style.background = color;
+}
+
+update();
+</script>
+
+</body>
+</html>

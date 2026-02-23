@@ -183,7 +183,7 @@ input[type=range]::-moz-range-thumb{
 
     <div class="row" role="group" aria-label="phase buttons">
       <button id="feed" class="active" onclick="setPhase('feed')">Feed</button>
-      <button id="expand" onclick="setPhase('expand')">Expand</button>
+      <button id="active" onclick="setPhase('active')">Active</button>
       <button id="slow" onclick="setPhase('slow')">Slow</button>
       <button id="stress" onclick="setPhase('stress')">Stress</button>
     </div>
@@ -193,15 +193,15 @@ input[type=range]::-moz-range-thumb{
     <label for="time">Time since last feeding</label>
     <input id="time" type="range" min="0" max="100" value="50" oninput="update()" />
     <div class="ends">
-      <span>Just fed</span>
-      <span>Long</span>
+      <span>Recently fed</span>
+      <span>Overdue</span>
     </div>
 
     <label for="boundary">Boundary stability</label>
     <input id="boundary" type="range" min="0" max="100" value="50" oninput="update()" />
     <div class="ends">
-      <span>Exposed</span>
-      <span>Protected</span>
+      <span>Unstable</span>
+      <span>Stable</span>
     </div>
 
     <div class="status" aria-label="system state panel">
@@ -220,7 +220,7 @@ let phase = "feed";
 
 function setPhase(p){
   phase = p;
-  ["feed","expand","slow","stress"].forEach(id=>{
+  ["feed","active","slow","stress"].forEach(id=>{
     document.getElementById(id).classList.toggle("active", id === p);
   });
   update();
@@ -237,13 +237,12 @@ function update(){
     stateText = "Stressed — Isolate sample. Document. Do not mix.";
     color = "var(--stress)";
   } else if(time > 80 || boundary < 30){
-    stateText = "Slowing — Restore rhythm gently. Avoid abrupt changes.";
+    stateText = "Slowing — Light intervention needed.";
     color = "var(--slow)";
   } else {
-    // phase-sensitive gentle phrasing (still minimal)
-    if(phase === "feed")   stateText = "Slowing — Feed lightly, then wait and observe.";
-    if(phase === "expand") stateText = "Active — Do not intervene. Protect boundary and keep conditions stable.";
-    if(phase === "slow")   stateText = "Slowing — Prepare the next feeding. Keep conditions steady.";
+    if(phase === "feed")   stateText = "Slowing — Light feeding may be needed.";
+    if(phase === "active") stateText = "Active — Do not intervene. Keep conditions stable.";
+    if(phase === "slow")   stateText = "Slowing — Prepare the next feeding.";
   }
 
   document.getElementById("statusText").textContent = stateText;
